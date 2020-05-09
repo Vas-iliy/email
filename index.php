@@ -7,7 +7,6 @@ function generateRandomString() {
     $random = '';
     for($i=0; $i<20; $i++) {
         $random .= $char[rand(0, (strlen($char)-1))];
-
     }
     return $random;
 
@@ -23,7 +22,31 @@ VALUES ('$username', '$email', '$authKey')");
     if ($query) {
         mail($email, 'Подтвердите почту', "Перейдите по ссылке 
         http://email/?auth=$authKey");
+        echo 'Подтвердите почту, письмо отправлено';
+    } else {
+        $findUser = $connection->query("SELECT * FROM email WHERE email = '$email'");
+        $findUser = $findUser->fetch();
+        if (!$findUser['validate']) {
+            echo 'Ваша почта так и не подтверждена...';
+        } else {
+
+            echo 'Вы уже подписаны на нашу рассылку';
+        }
     }
+
+}
+
+
+if ($_GET['auth']) {
+    $auth = $_GET['auth'];
+    $search = $connection->query("SELECT * FROM email WHERE  auth_key = '$auth' ");
+    if ($search) {
+        $connection->query("UPDATE email SET validate = true, 
+abdated_add=current_timestamp WHERE auth_key = '$auth'");
+        echo 'Ваша почта подтверждена';
+
+    }
+
 }
 
 
